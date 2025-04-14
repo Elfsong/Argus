@@ -104,29 +104,26 @@ class ArgusClient:
         try:
             system_data = self.get_gpu_usage()
             response = requests.post(f"{self.server_url}/post_system_data", json={"sid": "S22", "system_data": system_data})
-            logger.info(f"[System Data] Data: {response.json()}")
-            return response.json()
+            logger.info(f"[System Data] system_data: {system_data}")
         except Exception as e:
             logger.error(f"[System Data] Error: {e}")
-            return None
     
     def get_kill_process(self):
         try:
             response = requests.get(f"{self.server_url}/get_kill_process/{self.sid}")
-            logger.info(f"[Kill Process] response: {response}")
+            response = response.json()
+            logger.info(f"[Kill Process] pid_list: {response['pid_list']}")
 
             if "sid" not in response: return None
+            if response["sid"] != self.sid: return None
             if "pid_list" not in response: return None
 
             # TODO(Andrew): Kill process
             for pid in response["pid_list"]:
                 logger.info(f"[Kill Process] Killing process: [{pid}]")
                 ArgusClient.kill_process(pid)
-            
-            return response.json()
         except Exception as e:
             logger.error(f"[Kill Process] Error: {e}")
-            return None
 
     def telemetry_loop(self):
         while True:

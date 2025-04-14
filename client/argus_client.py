@@ -37,10 +37,10 @@ class ArgusClient:
                 ['nvidia-smi', '--query-gpu=index,uuid','--format=csv,noheader,nounits'],
                 encoding='utf-8'
             )
-            index_to_uuid = {
-                int(idx): uuid for idx, uuid in
-                (line.split(',') for line in uuid_output.strip().split('\n'))
-            }
+            index_to_uuid = {}
+            for line in uuid_output.strip().split('\n'):
+                idx, uuid = [x.strip() for x in line.split(',')]
+                index_to_uuid[int(idx)] = uuid
 
             process_info_output = subprocess.check_output(
                 ['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name,used_memory', '--format=csv,noheader,nounits'],
@@ -91,7 +91,7 @@ class ArgusClient:
     def post_system_data(self):
         try:
             system_data = self.get_gpu_usage()
-            response = requests.post(f"{self.server_url}/post_system_data", json={
+            requests.post(f"{self.server_url}/post_system_data", json={
                 "sid": self.sid,
                 "system_data": system_data
             })
@@ -120,3 +120,7 @@ class ArgusClient:
             except Exception as e:
                 logger.error(f"[Telemetry Loop] Error: {e}")
             time.sleep(self.interval)
+
+if __name__ == "__main__":
+    client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid="S22")
+    client.telemetry_loop()

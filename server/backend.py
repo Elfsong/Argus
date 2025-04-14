@@ -65,9 +65,12 @@ def get_kill_process(sid):
     if not sid:
         return jsonify({"status": "error", "message": "No SID provided"}), 400
 
+    pid_list = redis_client.get(f"{sid}_pid_list")
+    pid_list = json.loads(pid_list) if pid_list else []
+
     kill_process = {
         "sid": sid,
-        "pid_list": ["1", "2", "3"]
+        "pid_list": pid_list
     }
 
     logger.info(f"[Kill Process] {kill_process}")

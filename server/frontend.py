@@ -5,7 +5,6 @@ import redis
 import requests
 import streamlit as st
 
-
 st.title("Argus")
 
 # Get GPU Data

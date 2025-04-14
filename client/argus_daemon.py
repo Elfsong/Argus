@@ -2,24 +2,43 @@ import daemon
 import signal
 import os
 import sys
+import logging
 from daemon.pidfile import PIDLockFile
 from argus_client import ArgusClient
 
-client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid="S22")
-pid_file_path = "./argus_daemon.pid"
+LOG_PATH = "./argus_client.log"
+PID_PATH = "./argus_client.pid"
+STDOUT_PATH = "./argus_client_stdout.log"
+STDERR_PATH = "./argus_client_stderr.log"
 
-def stop_handler(signum, frame):
-    print("Stopping daemon gracefully.")
-    sys.exit(0)
+def setup_logger():
+    logger = logging.getLogger("argus_client")
+    logger.setLevel(logging.INFO)
+    logger.handlers.clear()
+
+    file_handler = logging.FileHandler(LOG_PATH)
+    stream_handler = logging.StreamHandler(sys.stdout)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+def run():
+    setup_logger()
+    client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid="S22")
+    client.telemetry_loop()
 
 context = daemon.DaemonContext(
-    pidfile=PIDLockFile(pid_file_path),
-    stdout=open("./argus_stdout.log", "a+"),
-    stderr=open("./argus_stderr.log", "a+"),
-    signal_map={signal.SIGTERM: stop_handler, signal.SIGINT: stop_handler},
-    working_directory=os.getcwd()
+    pidfile=PIDLockFile(PID_PATH),
+    stdout=open(STDOUT_PATH, "a+"),
+    stderr=open(STDERR_PATH, "a+"),
+    signal_map={signal.SIGTERM: lambda s, f: sys.exit(0)},
+    working_directory=os.getcwd(),
 )
 
 if __name__ == "__main__":
     with context:
-        client.telemetry_loop()
+        run()

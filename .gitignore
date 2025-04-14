@@ -3,3 +3,7 @@ client/argus.log
 server/argus_server.log
 server/gunicorn.pid
 server/__pycache__/*
+client/argus_venv/*
+client/__pycache__/*
+client/argus_client.log
+client/argus_client.pid

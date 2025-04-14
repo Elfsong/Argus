@@ -33,8 +33,6 @@ def run():
 
 context = daemon.DaemonContext(
     pidfile=PIDLockFile(PID_PATH),
-    stdout=open(STDOUT_PATH, "a+"),
-    stderr=open(STDERR_PATH, "a+"),
     signal_map={signal.SIGTERM: lambda s, f: sys.exit(0)},
     working_directory=os.getcwd(),
 )

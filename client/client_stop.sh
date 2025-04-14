@@ -1,2 +1,2 @@
-kill $(cat ./argus_daemon.pid)
-rm ./argus_daemon.pid
+kill $(cat ./argus_client.pid)
+rm ./argus_client.pid

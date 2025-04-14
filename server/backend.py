@@ -45,18 +45,15 @@ def get_gpu_data():
     else:
         return jsonify({"status": "error", "message": "No GPU data found"}), 404
     
-@app.route("/get_kill_process", methods=["GET"])
-def get_kill_process():
-    data = request.get_json()
+@app.route("/get_kill_process/<sid>", methods=["GET"])
+def get_kill_process(sid):
     # TODO(Andrew): Validate data / Authorization
 
-    if not data:
-        return jsonify({"status": "error", "message": "No GPU data found"}), 404
-    if "sid" not in data:
+    if not sid:
         return jsonify({"status": "error", "message": "No SID provided"}), 400
 
     kill_process = {
-        "sid": data["sid"],
+        "sid": sid,
         "pid_list": ["1", "2", "3"]
     }
 

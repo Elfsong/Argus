@@ -128,8 +128,8 @@ class ArgusClient:
     def telemetry_loop(self):
         while True:
             try:
-                system_data_response = self.post_system_data()
-                kill_process_response = self.get_kill_process()
+                self.post_system_data()
+                self.get_kill_process()
             except Exception as e:
                 logger.error(f"[Telemetry Loop] Error: {e}")
             finally:

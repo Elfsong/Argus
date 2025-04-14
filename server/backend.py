@@ -5,23 +5,21 @@ import redis
 import logging
 from datetime import datetime
 from flask import Flask, request, jsonify
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 
 # Logging Config
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[
-        logging.FileHandler('argus_server.log'),
-        logging.StreamHandler()
-    ]
-)
+log_handler = RotatingFileHandler('argus_server.log', maxBytes=5*1024*1024)
+log_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+logging.basicConfig(level=logging.INFO, handlers=[log_handler,logging.StreamHandler()])
 logger = logging.getLogger(__name__)
 
 # Connect to local Redis server
 redis_client = redis.Redis(host='localhost', port=6379, password=os.getenv("REDIS_PASSWORD"), db=0)
+
+# Server List
+SERVER_LIST = ["S22"]
 
 @app.route("/post_system_data", methods=["POST"])
 def post_system_data():
@@ -43,8 +41,8 @@ def post_system_data():
 
     return jsonify({"status": "ok"}), 200
 
-@app.route("/get_gpu_data/<sid>", methods=["GET"])
-def get_gpu_data(sid):
+@app.route("/get_system_data/<sid>", methods=["GET"])
+def get_system_data(sid):
     # TODO(Andrew): Validate data / Authorization
 
     if not sid:
@@ -80,7 +78,22 @@ def post_schedule():
     logger.info(f"[Post Schedule] <- {data['schedule']}")
 
     return jsonify({"status": "ok"}), 200
-    
+
+@app.route("/get_resource_list", methods=["GET"])
+def get_resource_list():
+    resource_list = []
+    for sid in SERVER_LIST:
+        system_data = redis_client.get(f"{sid}_data")
+        system_data = json.loads(system_data)
+        for gpu_info in system_data:
+            resource_list.append({
+                "id": f"{sid}_gpu{gpu_info['index']}",
+                "title": f"{gpu_info['name']}-{gpu_info['index']} [{gpu_info['memory_used_MB']}/{gpu_info['memory_total_MB']}]",
+                "server": sid
+            })
+    logger.info(f"[Get Resource List] -> {resource_list}")
+    return resource_list, 200
+ 
 @app.route("/get_kill_process/<sid>", methods=["GET"])
 def get_kill_process(sid):
     # TODO(Andrew): Validate data / Authorization

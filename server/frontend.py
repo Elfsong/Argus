@@ -17,6 +17,8 @@ now = datetime.now(sg_tz)
 now_iso = now.isoformat()
 scroll_time = now.strftime("%H:%M:%S")
 
+# Set page config
+st.set_page_config(layout="wide")
 st.title("**Argus**")
 
 with open('argus_auth.yaml') as file:
@@ -46,6 +48,10 @@ elif st.session_state.get('authentication_status') is None:
 if "calendar_events" not in st.session_state:
     response = requests.get("http://35.198.224.15:8000/get_schedule")
     st.session_state.calendar_events = response.json()
+    
+if "resource_list" not in st.session_state:
+    response = requests.get("http://35.198.224.15:8000/get_resource_list")
+    st.session_state.resource_list = response.json()
 
 calendar_options = {
     "editable": True,
@@ -58,20 +64,11 @@ calendar_options = {
     "slotMinTime": "00:00:00",
     "slotMaxTime": "24:00:00",
     "initialView": "resourceTimelineDay",
-    "resourceGroupField": "Server",
+    "resourceGroupField": "server",
     "timeZone": "Asia/Singapore",
     "scrollTime": scroll_time,
     "now": now_iso,
-    "resources": [
-        {"id": "s22_gpu0", "title": "GPU 0", "Server": "S22"},
-        {"id": "s22_gpu1", "title": "GPU 1", "Server": "S22"},
-        {"id": "s22_gpu2", "title": "GPU 2", "Server": "S22"},
-        {"id": "s22_gpu3", "title": "GPU 3", "Server": "S22"},
-        {"id": "s1_gpu0", "title": "GPU 0", "Server": "S1"},
-        {"id": "s1_gpu1", "title": "GPU 1", "Server": "S1"},
-        {"id": "s2_gpu0", "title": "GPU 0", "Server": "S2"},
-        {"id": "s2_gpu1", "title": "GPU 1", "Server": "S2"},
-    ],
+    "resources": st.session_state.resource_list,
 }
 
 custom_css = """

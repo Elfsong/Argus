@@ -29,9 +29,9 @@ def setup_logger():
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-def run(sid):
+def run(server_url, sid, interval):
     setup_logger()
-    client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid=sid)
+    client = ArgusClient(server_url=server_url, interval=interval, sid=sid)
     client.telemetry_loop()
 
 context = daemon.DaemonContext(
@@ -42,8 +42,10 @@ context = daemon.DaemonContext(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--server_url", type=str, default="http://35.198.224.15:8000")
     parser.add_argument("--sid", type=str, required=True)
+    parser.add_argument("--interval", type=int, default=10)
     args = parser.parse_args()
 
     with context:
-        run(sid=args.sid)
+        run(server_url=args.server_url, sid=args.sid, interval=args.interval)

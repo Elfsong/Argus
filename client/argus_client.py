@@ -98,7 +98,14 @@ class ArgusClient:
     @staticmethod
     def kill_process(pid):
         # TODO(Andrew): Kill process
-        pass
+        status = False
+        try:
+            os.kill(pid, signal.SIGKILL)
+            status = True
+        except Exception as e:
+            logger.error(f"[Kill Process] Error: {e}")
+        finally:
+            return status
 
     def post_system_data(self):
         try:
@@ -121,7 +128,7 @@ class ArgusClient:
             # TODO(Andrew): Kill process
             for pid in response["pid_list"]:
                 logger.info(f"[Kill Process] Killing process: [{pid}]")
-                ArgusClient.kill_process(pid)
+                # ArgusClient.kill_process(pid)
         except Exception as e:
             logger.error(f"[Kill Process] Error: {e}")
 

@@ -6,8 +6,9 @@ import daemon
 import signal
 import logging
 import argparse
-from daemon.pidfile import PIDLockFile
 from argus_client import ArgusClient
+from daemon.pidfile import PIDLockFile
+from logging.handlers import RotatingFileHandler
 
 LOG_PATH = "./argus_client.log"
 PID_PATH = "./argus_client.pid"
@@ -19,7 +20,7 @@ def setup_logger():
     logger.setLevel(logging.INFO)
     logger.handlers.clear()
 
-    file_handler = logging.FileHandler(LOG_PATH)
+    file_handler = RotatingFileHandler(LOG_PATH, maxBytes=5*1024*1024)
     stream_handler = logging.StreamHandler(sys.stdout)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

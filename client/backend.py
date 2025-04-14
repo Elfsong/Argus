@@ -112,7 +112,8 @@ class ArgusClient:
     
     def get_kill_process(self):
         try:
-            response = requests.get(f"{self.server_url}/get_kill_process/{self.sid}").json()
+            response = requests.get(f"{self.server_url}/get_kill_process/{self.sid}")
+            logger.info(f"[Kill Process] response: {response}")
 
             if "sid" not in response: return None
             if "pid_list" not in response: return None

@@ -2,9 +2,8 @@
 import os
 import json
 import redis
-import signal
 import logging
-from psutil import Process
+from datetime import datetime
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -37,7 +36,7 @@ def post_system_data():
         return jsonify({"status": "error", "message": "No GPU data provided"}), 400
     
     system_data = data["system_data"]
-    logger.info(f"[Post System Data] {system_data}")
+    logger.info(f"[Post System Data] <- {system_data}")
 
     # Update system data to Redis
     redis_client.set(f"{data['sid']}_data", json.dumps(system_data))
@@ -57,6 +56,30 @@ def get_gpu_data(sid):
         return jsonify(json.loads(system_data))
     else:
         return jsonify({"status": "error", "message": "No GPU data found"}), 404
+
+@app.route("/get_schedule", methods=["GET"])
+def get_schedule():
+    # TODO(Andrew): Validate data / Authorization
+
+    schedule = redis_client.get("schedule")
+    logger.info(f"[Get Schedule] -> {schedule}")
+
+    return schedule, 200
+    
+@app.route("/post_schedule", methods=["POST"])
+def post_schedule():
+    # TODO(Andrew): Validate data / Authorization
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"status": "error", "message": "No JSON data"}), 400
+    if "schedule" not in data:
+        return jsonify({"status": "error", "message": "No schedule provided"}), 400
+        
+    redis_client.set("schedule", json.dumps(data["schedule"]))
+    logger.info(f"[Post Schedule] <- {data['schedule']}")
+
+    return jsonify({"status": "ok"}), 200
     
 @app.route("/get_kill_process/<sid>", methods=["GET"])
 def get_kill_process(sid):
@@ -73,7 +96,7 @@ def get_kill_process(sid):
         "pid_list": pid_list
     }
 
-    logger.info(f"[Kill Process] {kill_process}")
+    logger.info(f"[Kill Process] -> {kill_process}")
     return jsonify(kill_process), 200
 
 if __name__ == "__main__":

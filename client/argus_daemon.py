@@ -1,8 +1,11 @@
-import daemon
-import signal
+#! /usr/bin/env python3
+
 import os
 import sys
+import daemon
+import signal
 import logging
+import argparse
 from daemon.pidfile import PIDLockFile
 from argus_client import ArgusClient
 
@@ -26,9 +29,9 @@ def setup_logger():
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-def run():
+def run(sid):
     setup_logger()
-    client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid="S22")
+    client = ArgusClient(server_url="http://35.198.224.15:8000", interval=10, sid=sid)
     client.telemetry_loop()
 
 context = daemon.DaemonContext(
@@ -38,5 +41,9 @@ context = daemon.DaemonContext(
 )
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sid", type=str, required=True)
+    args = parser.parse_args()
+
     with context:
-        run()
+        run(sid=args.sid)

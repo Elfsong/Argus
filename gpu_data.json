@@ -1,0 +1,36 @@
+{
+  "gpu_stats": [
+    {
+      "index": 0,
+      "name": "NVIDIA H100 PCIe",
+      "memory_total_MB": 81559,
+      "memory_used_MB": 0,
+      "utilization_percent": 0,
+      "processes": []
+    },
+    {
+      "index": 1,
+      "name": "NVIDIA H100 PCIe",
+      "memory_total_MB": 81559,
+      "memory_used_MB": 0,
+      "utilization_percent": 0,
+      "processes": []
+    },
+    {
+      "index": 2,
+      "name": "NVIDIA H100 PCIe",
+      "memory_total_MB": 81559,
+      "memory_used_MB": 0,
+      "utilization_percent": 0,
+      "processes": []
+    },
+    {
+      "index": 3,
+      "name": "NVIDIA H100 PCIe",
+      "memory_total_MB": 81559,
+      "memory_used_MB": 0,
+      "utilization_percent": 0,
+      "processes": []
+    }
+  ]
+}

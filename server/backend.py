@@ -11,8 +11,8 @@ app = Flask(__name__)
 # Connect to local Redis server
 redis_client = redis.Redis(host='localhost', port=6379, password=os.getenv("REDIS_PASSWORD"), db=0)
 
-@app.route("/submit_gpu_data", methods=["POST"])
-def post_gpu_data():
+@app.route("/post_system_data", methods=["POST"])
+def post_system_data():
     data = request.get_json()
     # TODO(Andrew): Validate data / Authorization
 
@@ -44,6 +44,23 @@ def get_gpu_data():
         return jsonify(json.loads(system_data))
     else:
         return jsonify({"status": "error", "message": "No GPU data found"}), 404
+    
+@app.route("/get_kill_process", methods=["GET"])
+def get_kill_process():
+    data = request.get_json()
+    # TODO(Andrew): Validate data / Authorization
+
+    if not data:
+        return jsonify({"status": "error", "message": "No GPU data found"}), 404
+    if "sid" not in data:
+        return jsonify({"status": "error", "message": "No SID provided"}), 400
+
+    kill_process = {
+        "sid": data["sid"],
+        "pid_list": ["1", "2", "3"]
+    }
+
+    return jsonify(kill_process), 200
 
 if __name__ == "__main__":
     # TODO(Andrew): Wrap it using gunicorn

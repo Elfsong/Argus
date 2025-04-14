@@ -1,2 +1,5 @@
 /server/token.sh
 client/argus.log
+server/argus_server.log
+server/gunicorn.pid
+server/__pycache__/*

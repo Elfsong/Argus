@@ -70,7 +70,7 @@ class ArgusClient:
                 pid = int(pid)
                 process_usage.setdefault(gpu_uuid, []).append({
                     'pid': pid,
-                    'user': get_username(pid),
+                    'user': ArgusClient.get_username(pid),
                     'process_name': pname,
                     'used_memory_MB': int(mem)
                 })

@@ -16,5 +16,5 @@ pip install requests psutil flask python-daemon
 
 # Start the daemon
 echo "Starting the daemon..."
-python argus_daemon.py
+python argus_daemon.py --server_url http://35.198.224.15:8000 --sid S22 --interval 10
 echo "Daemon started successfully."

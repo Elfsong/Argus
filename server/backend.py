@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 redis_client = redis.Redis(host='localhost', port=6379, password=os.getenv("REDIS_PASSWORD"), db=0)
 
 # Server List
-SERVER_LIST = ["S22"]
+SERVER_LIST = ["S22", "S15"]
 
 @app.route("/post_system_data", methods=["POST"])
 def post_system_data():
@@ -108,6 +108,8 @@ def get_kill_process(sid):
         "sid": sid,
         "pid_list": pid_list
     }
+    
+    redis_client.set(f"{sid}_pid_list", json.dumps([]))
 
     logger.info(f"[Kill Process] -> {kill_process}")
     return jsonify(kill_process), 200

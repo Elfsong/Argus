@@ -107,7 +107,7 @@ class ArgusClient:
             if response.get("sid") != self.sid: return
             for pid in response.get("pid_list", []):
                 logger.info(f"[Kill Process] Killing process: [{pid}]")
-                # ArgusClient.kill_process(int(pid))
+                ArgusClient.kill_process(int(pid))
 
         except Exception as e:
             logger.error(f"[Kill Process] Error: {e}")

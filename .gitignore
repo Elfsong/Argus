@@ -2,3 +2,5 @@ client/.env
 master/.env
 master/backend.log
 master/gunicorn.pid
+master/argus.log
+master/__pycache__

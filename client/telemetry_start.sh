@@ -15,5 +15,5 @@ echo "Installing dependencies..."
 pip install requests psutil flask python-daemon python-dotenv
 
 # Start the daemon
-sudo ./telemetry_venv/bin/python telemetry.py
+sudo ./telemetry_venv/bin/python telemetry_daemon.py
 echo "Daemon started successfully."

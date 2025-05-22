@@ -249,10 +249,10 @@ class Telemetry:
                 self.logger.error(f"[Telemetry Loop] Error: {e}")
             time.sleep(self.interval)
             
-if __name__ == "__main__":
-    load_dotenv()
-    client = Telemetry(server_id=os.getenv("SERVER_ID"), server_password=os.getenv("SERVER_PASSWORD"), master_url=os.getenv("MASTER_URL"), interval=os.getenv("INTERVAL"))
-    client.telemetry_loop()
+# if __name__ == "__main__":
+#     load_dotenv()
+#     client = Telemetry(server_id=os.getenv("SERVER_ID"), server_password=os.getenv("SERVER_PASSWORD"), master_url=os.getenv("MASTER_URL"), interval=os.getenv("INTERVAL"))
+#     client.telemetry_loop()
         
         
 

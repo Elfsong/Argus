@@ -18,7 +18,7 @@ load_dotenv()
 # Flask Config
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler('backend.log')
+file_handler = logging.FileHandler('argus.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)

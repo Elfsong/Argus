@@ -3,11 +3,13 @@
 # Author: Du Mingzhe (mingzhe@nus.edu.sg)
 # Date: 2025-05-21
 
+import os
 import time
 import psutil 
+import logging
 import requests
 import subprocess
-import logging
+from dotenv import load_dotenv
 
 class Telemetry:        
     def __init__(self, server_id, server_password, master_url, interval):
@@ -246,6 +248,11 @@ class Telemetry:
             except Exception as e:
                 self.logger.error(f"[Telemetry Loop] Error: {e}")
             time.sleep(self.interval)
+            
+if __name__ == "__main__":
+    load_dotenv()
+    client = Telemetry(server_id=os.getenv("SERVER_ID"), server_password=os.getenv("SERVER_PASSWORD"), master_url=os.getenv("MASTER_URL"), interval=os.getenv("INTERVAL"))
+    client.telemetry_loop()
         
         
 

@@ -243,8 +243,8 @@ class Telemetry:
         self.client_login()
         while True:
             try:
-                self.post_server_info(self.session)
-                self.get_server_kill(self.session)
+                self.post_server_info()
+                self.get_server_kill()
             except Exception as e:
                 self.logger.error(f"[Telemetry Loop] Error: {e}")
             time.sleep(self.interval)

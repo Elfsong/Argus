@@ -16,7 +16,7 @@ class Telemetry:
         self.server_id = server_id
         self.server_password = server_password
         self.master_url = master_url
-        self.interval = interval
+        self.interval = int(interval)
         self.logger = logging.getLogger("telemetry_client")
 
     def kill_process_psutil(self, pid: int, force: bool = False, timeout: int = 5) -> bool:

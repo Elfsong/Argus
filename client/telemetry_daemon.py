@@ -5,34 +5,28 @@ import sys
 import daemon
 import signal
 import logging
-import argparse
-from argus_client import ArgusClient
+from dotenv import load_dotenv
+from telemetry import Telemetry
 from daemon.pidfile import PIDLockFile
 from logging.handlers import RotatingFileHandler
 
-LOG_PATH = "./argus_client.log"
-PID_PATH = "./argus_client.pid"
-STDOUT_PATH = "./argus_client_stdout.log"
-STDERR_PATH = "./argus_client_stderr.log"
+LOG_PATH = "./telemetry_client.log"
+PID_PATH = "./telemetry_client.pid"
 
 def setup_logger():
-    logger = logging.getLogger("argus_client")
-    logger.setLevel(logging.INFO)
+    logger = logging.getLogger("telemetry_client")
     logger.handlers.clear()
-
     file_handler = RotatingFileHandler(LOG_PATH, maxBytes=5*1024*1024)
     stream_handler = logging.StreamHandler(sys.stdout)
-
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
-
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-def run(server_url, sid, interval):
+def run(master_url, server_password, server_id, interval):
     setup_logger()
-    client = ArgusClient(server_url=server_url, interval=interval, sid=sid)
+    client = Telemetry(master_url=master_url, server_password=server_password, server_id=server_id, interval=interval)
     client.telemetry_loop()
 
 context = daemon.DaemonContext(
@@ -42,11 +36,6 @@ context = daemon.DaemonContext(
 )
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--server_url", type=str, default="http://35.198.224.15:8000")
-    parser.add_argument("--sid", type=str, required=True)
-    parser.add_argument("--interval", type=int, default=10)
-    args = parser.parse_args()
-
+    load_dotenv()
     with context:
-        run(server_url=args.server_url, sid=args.sid, interval=args.interval)
+        run(master_url=os.getenv("MASTER_URL"), server_password=os.getenv("SERVER_PASSWORD"), server_id=os.getenv("SERVER_ID"), interval=os.getenv("INTERVAL"))

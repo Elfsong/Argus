@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status Dashboard - {{ server_id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 { /* Kept for potential future use, not in current template structure */
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .info-section p, .gpu-card p { /* .info-section not used, kept for consistency */
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .gpu-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .gpu-card h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .processes-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .processes-list li {
+            background-color: #e9ecef;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        .processes-list li strong {
+            color: #555;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .code {
+            font-family: monospace;
+            background-color: #e9e9e9;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .warning { /* Not used in this specific template, but good to have */
+            color: #c00;
+            font-weight: bold;
+        }
+
+        /* Styles for the Free Slots Banner */
+        .free-slots-banner-container {
+            margin-top: 15px;
+        }
+        .free-slots-banner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background-color: #e0f2f1; /* Light teal/greenish background for the banner area */
+            border: 1px solid #b2dfdb;
+            border-radius: 4px;
+        }
+        .free-slot-time-free {
+            background-color: #54d270; /* Brighter teal for individual slots */
+            color: #004d40; /* Darker text for contrast */
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: monospace;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .free-slot-time-booked {
+            background-color: #989898; /* Brighter teal for individual slots */
+            color: #004d40; /* Darker text for contrast */
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: monospace;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .more-slots-info {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #00796b; /* Teal color for text */
+            align-self: center; /* Vertically align if flex items have different heights */
+            margin-left: 5px;
+        }
+        .no-slots {
+            font-style: italic;
+            color: #555;
+        }
+        .flash-messages { list-style: none; padding: 0; margin-bottom: 15px; }
+        .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-messages .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .flash-messages .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Server Status - {{ server_id }}</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% if data %} {# Check if data (server_status list) exists #}
+            {% for gpu in data %}
+            <div class="gpu-card">
+                <h3>GPU {{ gpu.gpu_id }}</h3>
+                <p><span class="label">UUID:</span> <span class="code">{{ gpu.uuid }}</span></p>
+                <p><span class="label">Temperature:</span> {{ gpu.temperature_celsius }}</p>
+                <p><span class="label">GPU Utilization:</span> {{ gpu.utilization_percent }}</p>
+                <p><span class="label">Memory Usage:</span>
+                    {{ gpu.memory_usage_mib }} MiB / {{ gpu.memory_total_mib }} MiB
+                    (<span class="code">{{ gpu.memory_percent }}</span>)
+                </p>
+
+                <div class="free-slots-banner-container">
+                    <h4>Upcoming Slots (next 48hrs):</h4>
+                    {# Ensure free_slots dictionary and the specific gpu_id key exist #}
+                    {% if free_slots and gpu.gpu_id|string in free_slots and free_slots[gpu.gpu_id|string] %}
+                        <div class="free-slots-banner">
+                            {% for slot in free_slots[gpu.gpu_id|string][:48] %}
+                                {% if slot.booked_by == "" %}
+                                <a href="{{ url_for('server_book', server_id=server_id, gpu_id=gpu.gpu_id, timestamp=slot.current_timestamp) }}">
+                                    <div class="free-slot-time-free">
+                                        <p> {{ slot.display_time }}</p>
+                                        <p> Free</p>
+                                    </div>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('server_unbook', server_id=server_id, gpu_id=gpu.gpu_id, timestamp=slot.current_timestamp) }}">
+                                    <div class="free-slot-time-booked">
+                                        <p> {{ slot.display_time }}</p>
+                                        <p> {{ slot.booked_by.username }}</p>
+                                    </div>
+                                </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="no-slots">No upcoming free slots found for this GPU in the next 48 hours.</p>
+                    {% endif %}
+                </div>
+
+                <h4>Processes:</h4>
+                {% if gpu.processes and gpu.processes is iterable and gpu.processes is not string and gpu.processes|length > 0 %}
+                    <ul class="processes-list">
+                        {% for proc in gpu.processes %}
+                        <li>
+                            <strong>PID:</strong> <span class="code">{{ proc.pid }}</span> |
+                            <strong>User:</strong> <span class="code">{{ proc.user }}</span> |
+                            <strong>Name:</strong> <span class="code">{{ proc.process_name }}</span>
+                            {% if proc.used_gpu_memory_mib is defined %}
+                                | <strong>GPU Memory:</strong> <span class="code">{{ proc.used_gpu_memory_mib }} MiB</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No running processes on this GPU.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No GPU status data available for server {{ server_id }}.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

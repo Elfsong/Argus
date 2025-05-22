@@ -1,1 +1,0 @@
-kill $(cat ./argus_client.pid)

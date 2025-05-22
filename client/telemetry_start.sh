@@ -2,19 +2,19 @@
 
 # Create virtual environment
 echo "Creating virtual environment..."
-if [ ! -d "argus_venv" ]; then  
-    python3 -m venv argus_venv
+if [ ! -d "telemetry_venv" ]; then  
+    python3 -m venv telemetry_venv
 fi
 
 # Activate virtual environment
 echo "Activating virtual environment..."
-source argus_venv/bin/activate
+source telemetry_venv/bin/activate
 
 # Install dependencies
 echo "Installing dependencies..."
-pip install requests psutil flask python-daemon
+pip install requests psutil flask python-daemon python-dotenv
 
 # Start the daemon
 echo "Starting the daemon for $1..."
-sudo /home/ids_admin/Argus/client/argus_venv/bin/python argus_daemon.py --server_url http://35.198.224.15:8000 --sid $1 --interval 10
+sudo /home/ids_admin/Argus/client/telemetry_venv/bin/python telemetry.py
 echo "Daemon started successfully."

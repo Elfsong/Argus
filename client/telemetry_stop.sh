@@ -1,0 +1,1 @@
+kill $(cat ./telemetry_client.pid)

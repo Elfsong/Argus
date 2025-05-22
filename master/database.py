@@ -27,4 +27,4 @@ class DataBase:
     
     def get_server_info(self, server_id):
         raw_data = self.redis_client.get(f'SERVER_{server_id}')
-        return json.loads(raw_data) if raw_data else None
+        return json.loads(raw_data) if raw_data else {}

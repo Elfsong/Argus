@@ -18,6 +18,15 @@
             border-radius: 4px;
             margin-top: 20px;
         }
+        a.server-button {
+            display: inline-block;
+            background-color: #3f9fe4;
+            color: white;
+            padding: 10px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
         a.button:hover { background-color: #c82333; }
         .flash-messages { list-style: none; padding: 0; margin-bottom: 15px; }
         .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 4px; }
@@ -43,7 +52,9 @@
             <p> You have {{ credit }} credits.</p>
             
             {% for server in server_list %}
-                <a href="{{ url_for('server_detail', server_id=server) }}">{{ server }}</a>
+                <a href="{{ url_for('server_detail', server_id=server) }}" class="server-button" style="margin: 5px;">
+                    {{ server }}
+                </a>
             {% endfor %}
 
             <br>

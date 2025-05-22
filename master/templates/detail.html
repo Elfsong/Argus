@@ -125,7 +125,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Server Status - {{ server_id }}</h1>
+        <h1>Server Status - {{ server_id }} <a href="{{ url_for('server_index') }}" class="button">Back to Home</a></h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

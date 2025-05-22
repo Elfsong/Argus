@@ -206,7 +206,7 @@ class Telemetry:
         server_status = self.get_server_info()
         if server_status:
             response = self.session.post(
-                url = f"{MASTER_URL}/server/status?server_id={SERVER_ID}", 
+                url = f"{self.master_url}/server/status?server_id={self.server_id}", 
                 json = {"server_status": server_status, "timestamp": time.time()}
             )
             if response.status_code == 200:
@@ -217,7 +217,7 @@ class Telemetry:
             self.logger.error(f"[Client Post] No GPU data available to post.")
 
     def get_server_kill(self):
-        response = self.session.get(url = f"{MASTER_URL}/server/kill?server_id={SERVER_ID}")
+        response = self.session.get(url = f"{self.master_url}/server/kill?server_id={self.server_id}")
         response_json = response.json()
         if response_json['killing_pid_list']:
             for pid in response_json['killing_pid_list']:
@@ -231,7 +231,7 @@ class Telemetry:
 
     def client_login(self):
         self.session = requests.Session()
-        response = self.session.post(f"{MASTER_URL}/server/login", data={'server_id': SERVER_ID, 'password': SERVER_PASSWORD})
+        response = self.session.post(f"{self.master_url}/server/login", data={'server_id': self.server_id, 'password': self.server_password})
         if response.status_code == 200:
             self.logger.info(f"[Client Login] Successfully logged in to the master server.")
             return True

@@ -29,14 +29,17 @@ sgt_timezone = pytz.timezone('Asia/Singapore')
 # before request
 @app.before_request
 def before_request():
-    if request.endpoint in ['server_status', 'user_status', 'server_detail', 'server_kill', 'server_book', 'server_unbook', 'server_list', 'index']:
+    if request.endpoint in ['server_status', 'user_status', 'server_detail', 'server_kill', 'server_book', 'server_unbook', 'server_list']:
         if not session.get('instance_id'):
             return redirect(url_for('user_login'))
 
 @app.route('/')
 def index():
-    user_info = app.db.get_user_info(session['instance_id'])
-    return render_template('index.html', instance_id=session['instance_id'], credit=user_info['credit'], server_list=user_info['server_list'])
+    if session.get('instance_id'):
+        user_info = app.db.get_user_info(session['instance_id'])
+        return render_template('index.html', instance_id=session['instance_id'], credit=user_info['credit'], server_list=user_info['server_list'])
+    else:
+        return render_template('index.html')
 
 @app.route('/server/detail', methods=['GET'])
 def server_detail():
@@ -174,15 +177,14 @@ def server_kill():
     server_info = app.db.get_server_info(request_server_id)
     current_hour_timestamp = str(int(time.time()) - int(time.time()) % 3600)
     
-    exclusive_gpus = list()
-    for gpu in server_info['book_event']:
-        if current_hour_timestamp in server_info['book_event'][gpu]:
-            exclusive_gpus.append(gpu)
-
     killing_pid_list = list()
     for gpu in server_info['server_status']:
-        if str(gpu['gpu_id']) in exclusive_gpus:
-            killing_pid_list.extend([process['pid'] for process in gpu['processes']])
+        gpu_id = str(gpu['gpu_id'])
+        if current_hour_timestamp in server_info['book_event'][gpu_id]:
+            username = server_info['book_event'][gpu_id][current_hour_timestamp]['username']
+            for process in gpu['processes']:
+                if process['username'] != username:
+                    killing_pid_list.append(process['pid'])
     
     # log the kill event
     app.logger.info(f"[Server Kill] -> {request_server_id} {killing_pid_list}")
@@ -228,7 +230,7 @@ def user_login():
             # log the user login event
             app.logger.info(f"[User Login] -> [success] {username} {password}")
             flash('Login successful!', 'success')
-            return redirect(url_for('index')), 200
+            return redirect(url_for('index'))
         else:
             # log the user login event
             app.logger.info(f"[User Login] -> [failed] {username} {password}")
@@ -240,11 +242,12 @@ def user_login():
 @app.route('/user/logout')
 def user_logout():
     # log the user logout event
-    app.logger.info(f"[User Logout] -> {session['instance_id']}")
+    if session.get('instance_id'):
+        app.logger.info(f"[User Logout] -> {session['instance_id']}")
     
-    session.pop('instance_id', None)
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index')), 200
+        session.pop('instance_id', None)
+        flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

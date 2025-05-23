@@ -183,7 +183,7 @@ def server_kill():
         if current_hour_timestamp in server_info['book_event'][gpu_id]:
             username = server_info['book_event'][gpu_id][current_hour_timestamp]['username']
             for process in gpu['processes']:
-                if process['username'] != username:
+                if process['user'] != username:
                     killing_pid_list.append(process['pid'])
     
     # log the kill event

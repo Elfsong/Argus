@@ -243,11 +243,11 @@ class Telemetry:
     def telemetry_loop(self):
         self.client_login()
         while True:
-            try:
-                self.post_server_info()
-                self.get_server_kill()
-            except Exception as e:
-                self.logger.error(f"[Telemetry Loop] Error: {e}")
+            # try:
+            self.post_server_info()
+            self.get_server_kill()
+            # except Exception as e:
+            #     self.logger.error(f"[Telemetry Loop] Error: {e}")
             time.sleep(self.interval)
             
 if __name__ == "__main__":

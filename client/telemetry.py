@@ -219,6 +219,7 @@ class Telemetry:
     def get_server_kill(self):
         response = self.session.get(url = f"{self.master_url}/server/kill?server_id={self.server_id}")
         response_json = response.json()
+        self.logger.info(f"[Client Kill] {response_json}")
         if response_json['killing_pid_list']:
             for pid in response_json['killing_pid_list']:
                 status = self.kill_process_psutil(pid)
